@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: 'Georgia', serif;
-      background: url('https://www.transparenttextures.com/patterns/black-tile.png'); /* Fondo con textura elegante */
+      background: url('https://www.transparenttextures.com/patterns/black-tile.png');
       color: #fff;
       margin: 0;
       padding: 20px;
@@ -22,21 +22,22 @@
       margin-bottom: 30px;
     }
     .cartones {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr); /* 6 cartones por fila */
       gap: 15px;
       justify-content: center;
       margin-bottom: 40px;
+      padding: 20px;
     }
     .carton {
-      width: 60px;
-      height: 60px;
+      width: 80px;
+      height: 80px;
       background: #333;
       border: 2px solid #d4af37;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       font-weight: bold;
       border-radius: 10px;
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
@@ -50,6 +51,10 @@
     .carton.ocupado {
       background: #555;
       cursor: not-allowed;
+    }
+    .carton-info {
+      font-size: 1rem;
+      text-align: center;
     }
     form {
       text-align: center;
@@ -103,10 +108,18 @@
   </form>
 
   <script>
-    const totalCartones = 180;
+    const cartonesFijos = [
+      { id: "Cartón 001", B: [1, 3, 5, 9, 14], I: [16, 20, 23, 28, 30], N: [31, 35, "FREE", 42, 44], G: [46, 50, 54, 57, 59], O: [61, 65, 69, 72, 74] },
+      { id: "Cartón 002", B: [2, 6, 7, 12, 15], I: [17, 18, 22, 26, 29], N: [33, 34, "FREE", 39, 43], G: [47, 51, 55, 58, 60], O: [62, 64, 68, 71, 75] },
+      { id: "Cartón 003", B: [3, 8, 10, 11, 13], I: [19, 21, 24, 27, 30], N: [32, 36, "FREE", 41, 45], G: [48, 52, 56, 53, 59], O: [63, 66, 70, 73, 74] },
+      { id: "Cartón 004", B: [4, 7, 9, 13, 14], I: [17, 19, 22, 25, 28], N: [31, 35, "FREE", 42, 44], G: [46, 50, 55, 57, 59], O: [61, 64, 68, 72, 75] },
+      { id: "Cartón 005", B: [1, 2, 5, 10, 12], I: [16, 20, 23, 27, 29], N: [31, 34, "FREE", 41, 45], G: [47, 51, 56, 58, 60], O: [62, 65, 69, 71, 74] },
+      // Continuar agregando los cartones fijos hasta el Cartón 180...
+      { id: "Cartón 180", B: [1, 3, 4, 6, 9], I: [18, 22, 24, 26, 30], N: [31, 33, "FREE", 39, 43], G: [47, 49, 55, 57, 59], O: [62, 65, 69, 71, 74] }
+    ];
+
     const maximoCartonesVendidos = 90;
     const cartonesOcupados = [3, 12, 24, 56, 180];
-
     const contenedor = document.getElementById("cartones");
     const seleccionados = [];
     const contador = document.getElementById("contador");
@@ -116,11 +129,21 @@
       contador.textContent = `¡Quedan ${disponibles} cupos disponibles para esta partida!`;
     }
 
-    for (let i = 1; i <= totalCartones; i++) {
+    function crearCarton(carton) {
       const div = document.createElement("div");
-      div.textContent = i.toString().padStart(2, "0");
-      div.className = "carton";
-      if (cartonesOcupados.includes(i)) {
+      div.classList.add("carton");
+      div.id = carton.id;
+      div.innerHTML = `
+        <div class="carton-info">
+          <strong>${carton.id}</strong><br>
+          B: ${carton.B.join(', ')}<br>
+          I: ${carton.I.join(', ')}<br>
+          N: ${carton.N}<br>
+          G: ${carton.G.join(', ')}<br>
+          O: ${carton.O.join(', ')}
+        </div>
+      `;
+      if (cartonesOcupados.includes(carton.id)) {
         div.classList.add("ocupado");
       } else {
         div.onclick = () => {
@@ -131,10 +154,10 @@
           }
           if (div.classList.contains("selected")) {
             div.classList.remove("selected");
-            seleccionados.splice(seleccionados.indexOf(i), 1);
+            seleccionados.splice(seleccionados.indexOf(carton.id), 1);
           } else {
             div.classList.add("selected");
-            seleccionados.push(i);
+            seleccionados.push(carton.id);
           }
           actualizarContador();
         };
@@ -142,6 +165,7 @@
       contenedor.appendChild(div);
     }
 
+    cartonesFijos.forEach(crearCarton);
     actualizarContador();
 
     function enviarReserva(e) {
